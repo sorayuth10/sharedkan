@@ -8,11 +8,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -31,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseAuth mAuth;
     private FirebaseUser mCurrentUser;
+    private FirebaseDatabase mDatabase;
+    private TextView btn_register;
 
     ConnectivityManager connectivityManager;
     NetworkInfo info;
@@ -41,13 +41,51 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         auth = FirebaseAuth.getInstance();
+//----------------------------------------------Auto Login<Start>---------------------------------------------------------//
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        mCurrentUser = auth.getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance();
 
+        if (mCurrentUser != null)
+        {
+            mAuth = FirebaseAuth.getInstance();
+            mCurrentUser = mAuth.getCurrentUser();
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+            ref.child("Users").child(mCurrentUser.getUid()).child("phone").addValueEventListener(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String x = dataSnapshot.getValue(String.class);
+                    if(x!=null){
+                        progressBar.setVisibility(View.GONE);
+                        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                        finish();
+                    }else {Intent intent = new Intent(LoginActivity.this, DetailActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
+        else
+        {
+            // [assume we are signed-out (or have never signed in).]
+            //go to LoginActivity..
+        }
+//----------------------------------------------Auto Login<End>-----------------------------------------------------------//
         Timer t = new Timer();
         boolean checkConnection=new LoginActivity().checkConnection(this);
         if (checkConnection) {
         } else {
             Toast.makeText(LoginActivity.this,
-                    "Please check connection :'(", 1000).show();
+                    "Please check your connection", 1000).show();
             t.schedule(new splash(), 1000);
         }
 
@@ -65,14 +103,18 @@ public class LoginActivity extends AppCompatActivity {
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        btn_signup = (Button) findViewById(R.id.btn_signup);
-        btn_signup.setOnClickListener(new View.OnClickListener() {
+
+
+        btn_register = (TextView) findViewById(R.id.textViewRegister);
+        btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent x = new Intent (LoginActivity.this,MainActivity.class);
                 startActivity(x);
             }
         });
+
+
         btn_login = (Button) findViewById(R.id.btn_login);
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,6 +208,13 @@ public class LoginActivity extends AppCompatActivity {
         return flag;
 
         //return false;
+    }
+    @Override
+    public void onBackPressed() {
+        Intent a = new Intent(Intent.ACTION_MAIN);
+        a.addCategory(Intent.CATEGORY_HOME);
+        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(a);
     }
 }
 

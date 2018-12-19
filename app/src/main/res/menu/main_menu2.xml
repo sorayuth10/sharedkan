@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item android:id="@+id/action_chat"
+          android:icon="@mipmap/baseline_question_answer_white_24"
+          android:title="Chat"
+          app:showAsAction="always"/>
+
+    <item android:id="@+id/action_menu"
+          android:icon="@mipmap/baseline_more_vert_white_24"
+          android:title="menu"
+          app:showAsAction="always">
+
+        <menu>
+            <item android:id="@+id/action_settings"
+                  android:icon="@mipmap/baseline_person_black_24"
+                  android:title="Profile"
+                  app:showAsAction="always"/>
+
+            <item android:id="@+id/action_sort"
+                  android:icon="@mipmap/baseline_tune_black_24"
+                  android:title="View By"
+                  app:showAsAction="always">
+
+                <menu>
+                    <item android:id="@+id/action_food_post"
+                          android:icon="@mipmap/baseline_fastfood_black_24"
+                          android:title="Food"
+                          app:showAsAction="always"/>
+
+                    <item android:id="@+id/action_product_post"
+                          android:icon="@mipmap/baseline_shopping_cart_black_24"
+                          android:title="Product"
+                          app:showAsAction="always"/>
+                </menu>
+
+            </item>
+
+        </menu>
+
+    </item>
+
+</menu>

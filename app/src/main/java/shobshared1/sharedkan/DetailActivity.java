@@ -1,91 +1,175 @@
 package shobshared1.sharedkan;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Toast;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import android.widget.*;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.*;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 public class DetailActivity extends AppCompatActivity {
-    public Button btn_click;
-    public EditText txt_name, txt_line, txt_phone,textView;
-    ProgressBar progressBar;
+
+    private ImageButton mSetupImageBtn;
+    private EditText mNameField,mLineField,mPhoneField;
+    private Button mFinishSetupBtn;
+    private Uri mImageUri = null;
     private FirebaseAuth mAuth;
-    private FirebaseUser mCurrentUser;
-    private FirebaseDatabase mRef;
-
-
+    private DatabaseReference mDatabaseUsers;
+    private StorageReference mStorage;
+    private ProgressDialog mProgress;
+    private ProgressBar progressBar;
+    private static final int GALLERY_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        mAuth = FirebaseAuth.getInstance();
+        mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("Users"); //Database Reference to Users Child
+        mStorage = FirebaseStorage.getInstance().getReference().child("Profile_Images"); //Storage Reference to Profile Image child
+        mProgress = new ProgressDialog(this);
+        mSetupImageBtn = (ImageButton) findViewById(R.id.profileImageButton);
+        mNameField = (EditText) findViewById(R.id.txt_name);
+        mLineField = (EditText) findViewById(R.id.txt_line);
+        mPhoneField = (EditText) findViewById(R.id.txt_phone);
+        mFinishSetupBtn = (Button) findViewById(R.id.btn_submit);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        txt_name = (EditText) findViewById(R.id.txt_name);
-        txt_line = (EditText) findViewById(R.id.txt_line);
-        txt_phone = (EditText) findViewById(R.id.txt_phone);
-        progressBar.setVisibility(View.GONE);
-
-        btn_click = (Button) findViewById(R.id.btn_submit);
-        btn_click.setOnClickListener(new View.OnClickListener() {
+        mFinishSetupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String get_name = txt_name.getText().toString();
-                String get_line = txt_line.getText().toString();
-                String get_phone = txt_phone.getText().toString();
-                if (TextUtils.isEmpty(get_name)) {
-                    Toast.makeText(getApplicationContext(), "Please fill the form!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (TextUtils.isEmpty(get_line)) {
-                    Toast.makeText(getApplicationContext(), "Please fill the Topic!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (TextUtils.isEmpty(get_phone)) {
-                    Toast.makeText(getApplicationContext(), "Please fill the Content!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                sendToFireBase(get_name, get_line, get_phone);
-                Intent b = new Intent (DetailActivity.this,HomeActivity.class);
-                startActivity(b);
-
+                startSetupAccount();
             }
-            private void sendToFireBase(String get_name, String get_line, String get_phone) {
-                progressBar.setVisibility(View.VISIBLE);
-                DatabaseReference listName;
-                DatabaseReference listTopic;
-                DatabaseReference listContent;
-                mAuth = FirebaseAuth.getInstance();
-                mCurrentUser = mAuth.getCurrentUser();
-
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users").child(mCurrentUser.getUid());
-                listName = ref.child("name");
-                listName.setValue(get_name);
-                listTopic = ref.child("line");
-                listTopic.setValue(get_line);
-                listContent = ref.child("phone");
-                listContent.setValue(get_phone);
-                progressBar.setVisibility(View.GONE);
-
-                finish();
-
-            }
-
-
         });
 
 
+        //Open Gallery when Image Button is clicked
+        mSetupImageBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE);
+            }
+        });
+
+    }
+
+    private void startSetupAccount(){
+        final String name = mNameField.getText().toString().trim();
+        final String line = mLineField.getText().toString().trim();
+        final String phone = mPhoneField.getText().toString().trim();
+        final String user_id = mAuth.getCurrentUser().getUid();
+        if(!TextUtils.isEmpty(name) && mImageUri != null && !TextUtils.isEmpty(line) && !TextUtils.isEmpty(phone)){
+
+            mProgress.setMessage("Finishing Setup...");
+            mProgress.show();
+            final StorageReference filePath = mStorage.child("Profile_images").child(mImageUri.getLastPathSegment());
+            filePath.putFile(mImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return filePath.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>()  {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    final String downloadUri = task.getResult().toString();
+
+                    mDatabaseUsers.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            mDatabaseUsers.child(user_id).child("name").setValue(name); //Set Name Field
+                            mDatabaseUsers.child(user_id).child("image").setValue(downloadUri);
+                            mDatabaseUsers.child(user_id).child("line").setValue(line);
+                            mDatabaseUsers.child(user_id).child("phone").setValue(phone);
+                            mProgress.dismiss();
+                            Intent mainIntent = new Intent(DetailActivity.this, HomeActivity.class);
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                            startActivity(mainIntent);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+                }
+
+              /*  @Override
+                public void onComplete(UploadTask.TaskSnapshot taskSnapshot) {
+                    final String downloadUri = taskSnapshot.getStorage().getDownloadUrl().toString();
+
+                    mDatabaseUsers.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            mDatabaseUsers.child(user_id).child("name").setValue(name); //Set Name Field
+                            mDatabaseUsers.child(user_id).child("image").setValue(downloadUri);
+                            mProgress.dismiss();
+                            Intent mainIntent = new Intent(SetupActivity.this, HomeActivity.class);
+                            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                            startActivity(mainIntent);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+                }*/
+            });
+        }else {
+            Toast.makeText(this, "Please enter all field", Toast.LENGTH_SHORT).show();}
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+       /* if(requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK){
+            Uri imageUri = data.getData();
+            CropImage.activity()
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setAspectRatio(1,1) //Set 1,1 for square pixels
+                    .start(this);
+        }
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                mImageUri = result.getUri();
+                mSetupImageBtn.setImageURI(mImageUri);
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }*/
+
+        if(requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK){
+            mImageUri = data.getData();
+            mSetupImageBtn.setImageURI(mImageUri);
+        }
     }
 
 }

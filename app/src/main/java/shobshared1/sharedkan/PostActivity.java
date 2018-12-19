@@ -50,6 +50,9 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mAuth = FirebaseAuth.getInstance();
         mCurrentUser = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Blog"); //Blog Child
@@ -103,6 +106,7 @@ public class PostActivity extends AppCompatActivity {
                         mDatabaseUsers.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                newPost.child("Category").setValue("Food");
                                 newPost.child("title").setValue(title);
                                 newPost.child("description").setValue(description);
                                 newPost.child("imageURL").setValue(downloadUri.toString());
@@ -203,7 +207,8 @@ public class PostActivity extends AppCompatActivity {
                     mProgress.dismiss();
 
                 }*/
-        };
+        }else { mProgress.cancel();
+            Toast.makeText(this, "Please enter all field", Toast.LENGTH_SHORT).show();}
     }
 
 
@@ -216,6 +221,12 @@ public class PostActivity extends AppCompatActivity {
             mImageUri = data.getData();
             mSelectImage.setImageURI(mImageUri);
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
 }

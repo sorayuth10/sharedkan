@@ -8,9 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.*;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,13 +19,14 @@ import com.google.firebase.database.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 public class SetupActivity extends AppCompatActivity {
 
     private ImageButton mSetupImageBtn;
-    private EditText mNameField;
+    private EditText mNameField,mLineField,mPhoneField;
     private Button mFinishSetupBtn;
     private Uri mImageUri = null;
     private FirebaseAuth mAuth;
@@ -41,13 +40,28 @@ public class SetupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        final String post_name = getIntent().getExtras().getString("name");
+        final String post_line = getIntent().getExtras().getString("line");
+        final String post_phone = getIntent().getExtras().getString("phone");
+        final String post_image = getIntent().getExtras().getString("image");
+
         mAuth = FirebaseAuth.getInstance();
         mDatabaseUsers = FirebaseDatabase.getInstance().getReference().child("Users"); //Database Reference to Users Child
         mStorage = FirebaseStorage.getInstance().getReference().child("Profile_Images"); //Storage Reference to Profile Image child
         mProgress = new ProgressDialog(this);
         mSetupImageBtn = (ImageButton) findViewById(R.id.profileImageButton);
-        mNameField = (EditText) findViewById(R.id.setupNameField);
-        mFinishSetupBtn = (Button) findViewById(R.id.finishSetupButton);
+        mNameField = (EditText) findViewById(R.id.txt_name);
+        mLineField = (EditText) findViewById(R.id.txt_line);
+        mPhoneField = (EditText) findViewById(R.id.txt_phone);
+        mFinishSetupBtn = (Button) findViewById(R.id.btn_submit);
+
+        mNameField.setText(post_name);
+        mLineField.setText(post_line);
+        mPhoneField.setText(post_phone);
+        //Picasso.with(SetupActivity.this).load(post_image).into(mSetupImageBtn);
 
         mFinishSetupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,8 +85,11 @@ public class SetupActivity extends AppCompatActivity {
 
     private void startSetupAccount(){
         final String name = mNameField.getText().toString().trim();
+        final String line = mLineField.getText().toString().trim();
+        final String phone = mPhoneField.getText().toString().trim();
         final String user_id = mAuth.getCurrentUser().getUid();
-        if(!TextUtils.isEmpty(name) && mImageUri != null){
+        if(!TextUtils.isEmpty(name) && mImageUri != null && !TextUtils.isEmpty(line) && !TextUtils.isEmpty(phone)){
+
             mProgress.setMessage("Finishing Setup...");
             mProgress.show();
             final StorageReference filePath = mStorage.child("Profile_images").child(mImageUri.getLastPathSegment());
@@ -94,8 +111,10 @@ public class SetupActivity extends AppCompatActivity {
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             mDatabaseUsers.child(user_id).child("name").setValue(name); //Set Name Field
                             mDatabaseUsers.child(user_id).child("image").setValue(downloadUri);
+                            mDatabaseUsers.child(user_id).child("line").setValue(line);
+                            mDatabaseUsers.child(user_id).child("phone").setValue(phone);
                             mProgress.dismiss();
-                            Intent mainIntent = new Intent(SetupActivity.this, HomeActivity.class);
+                            Intent mainIntent = new Intent(SetupActivity.this, SetupEditActivity.class);
                             mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
                             startActivity(mainIntent);
@@ -134,7 +153,9 @@ public class SetupActivity extends AppCompatActivity {
 
                 }*/
             });
-        }
+        }else {
+            Toast.makeText(this, "Please enter all field", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "and select a new profile image", Toast.LENGTH_SHORT).show();}
     }
 
 
@@ -158,10 +179,15 @@ public class SetupActivity extends AppCompatActivity {
                 Exception error = result.getError();
             }
         }*/
-       
+
         if(requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK){
             mImageUri = data.getData();
             mSetupImageBtn.setImageURI(mImageUri);
         }
+    }
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }

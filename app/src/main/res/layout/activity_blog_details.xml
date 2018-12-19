@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   xmlns:app="http://schemas.android.com/apk/res-auto"
                   xmlns:tools="http://schemas.android.com/tools"
@@ -19,6 +23,7 @@
 
         <TextView
                 android:id="@+id/txtPostTitle"
+                android:fontFamily="@font/bree_serif"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
@@ -26,6 +31,7 @@
                 android:textSize="16dp"
                 android:textStyle="bold" />
         <TextView
+                android:fontFamily="@font/bree_serif"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/txtPostDescription"
@@ -33,14 +39,103 @@
                 android:padding="10dp"/>
 
 
-            <Button
-                    android:id="@+id/btnRemovePost"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:text="Remove Post"
-                    android:visibility="invisible" />
+        <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" tools:layout_editor_absoluteY="274dp">
 
+            <TextView
+                    android:text="Name"
+                    android:fontFamily="@font/bree_serif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/txtName"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintVertical_bias="0.037"
+                    app:layout_constraintStart_toEndOf="@+id/textView5" android:layout_marginStart="16dp"
+            />
+            <TextView
+                    android:text="Line"
+                    android:fontFamily="@font/bree_serif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/txtLine"
+                    android:layout_marginTop="12dp" app:layout_constraintTop_toBottomOf="@+id/txtName"
+                    app:layout_constraintStart_toEndOf="@+id/textView6" android:layout_marginStart="16dp"
+            />
+            <TextView
+                    android:text="Phone"
+                    android:fontFamily="@font/bree_serif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp" android:id="@+id/txtPhone"
+                    android:layout_marginTop="12dp"
+                    app:layout_constraintTop_toBottomOf="@+id/txtLine"
+                    app:layout_constraintStart_toEndOf="@+id/textView7" android:layout_marginStart="16dp"
+            />
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                          android:id="@+id/profileImageView"
+                                                          android:layout_width="100dp"
+                                                          android:layout_height="100dp"
+                                                          android:layout_alignParentTop="true"
+                                                          android:layout_centerHorizontal="true"
+                                                          android:scaleType="centerCrop"
+                                                          android:src="@drawable/profle"
+                                                          app:civ_border_color="@color/white"
+                                                          app:civ_border_width="0.5dp"
+                                                          android:layout_marginTop="8dp"
+                                                          app:layout_constraintTop_toTopOf="parent"
+                                                          app:layout_constraintStart_toStartOf="parent"
+                                                          android:layout_marginStart="4dp"
+                                                          android:layout_marginBottom="8dp"
+                                                          app:layout_constraintBottom_toBottomOf="parent"
+                                                          app:layout_constraintVertical_bias="0.0"/>
 
+            <TextView
+                    android:text="Name"
+                    android:fontFamily="@font/bree_serif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView5"
+                    app:layout_constraintStart_toEndOf="@+id/profileImageView"
+                    android:layout_marginStart="16dp" android:layout_marginBottom="84dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textSize="16sp" android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"/>
+            <TextView
+                    android:text="Line"
+                    android:fontFamily="@font/bree_serif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView6"
+                    android:layout_marginTop="12dp" app:layout_constraintTop_toBottomOf="@+id/txtName"
+                    app:layout_constraintStart_toEndOf="@+id/profileImageView" android:layout_marginStart="28dp"
+                    android:textSize="16sp"/>
+            <TextView
+                    android:text="Phone"
 
-</LinearLayout>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/textView7"
+                    android:fontFamily="@font/bree_serif"
+                    app:layout_constraintStart_toEndOf="@+id/profileImageView" android:layout_marginStart="12dp"
+                    android:textSize="16sp" android:layout_marginTop="12dp"
+                    app:layout_constraintTop_toBottomOf="@+id/txtLine"/>
+        </android.support.constraint.ConstraintLayout>
+        <Button
+                android:text="Join Event"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/button2" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="8dp" app:layout_constraintStart_toEndOf="@+id/txtLine"
+                android:layout_marginStart="8dp"
+                 android:background="@color/green"
+                android:textColor="@color/white"/>
+        <Button
+                android:id="@+id/btnRemovePost"
+                android:layout_width="match_parent"
+                android:layout_height="69dp"
+                android:layout_gravity="bottom"
+                android:text="Remove Post"
+                android:visibility="invisible" app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="16dp"/>
+
+    </LinearLayout>
+</ScrollView>

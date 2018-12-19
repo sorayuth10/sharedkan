@@ -8,32 +8,103 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+    <uses-feature android:name="android.hardware.screen.portrait"/>
+
     <application
             android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@drawable/iconapp"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
+            android:roundIcon="@drawable/iconapp"
             android:supportsRtl="true"
-            android:theme="@style/AppTheme">
-        android:largeHeap="true"
-        <activity android:name=".MainActivity">
-        </activity>
-        <activity android:name=".LoginActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
+            android:largeHeap="true"
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+        <activity
+                android:name=".MainActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+                android:name=".LoginActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.NoActionBar">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN"/>
+                        <category android:name="android.intent.category.LAUNCHER"/>
+                    </intent-filter>
         </activity>
-        <activity android:name=".DetailActivity"/>
-        <activity android:name=".HomeActivity"/>
-        <activity android:name=".PostActivity"/>
-        <activity android:name=".SetupActivity"/>
-        <activity android:name=".BlogDetailsActivity"/>
-        <activity android:name=".SetupEditActivity">
-        </activity>
-        <activity android:name=".RetryActivity">
-        </activity>
+
+        <activity
+                android:name=".DetailActivity"
+                android:screenOrientation="portrait"
+                android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+                android:name=".HomeActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Create Food Event"
+                android:name=".PostActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Edit Profile"
+                android:name=".SetupActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Details"
+                android:name=".BlogDetailsActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Profile"
+                android:name=".SetupEditActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Retry"
+                android:name=".RetryActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="My Event"
+                android:name=".MyPostActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Create Event"
+                android:name=".PostCategoryActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Food Event"
+                android:name=".FoodHomeActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Create Product Event"
+                android:name=".ProductPostActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Product Event"
+                android:name=".ProductHomeActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Chat"
+                android:name=".ChatActivity"
+                android:screenOrientation="portrait"/>
+
+        <activity
+                android:label="Event Chat"
+                android:name=".ChatBlogActivity"
+                android:screenOrientation="portrait"/>
+        <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
+
     </application>
 
 </manifest>
