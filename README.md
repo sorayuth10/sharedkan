@@ -1,4 +1,4 @@
 # sharedkan
-Andriod - project year 3
+Android - project year 3
 
 By ITE - KMITL
